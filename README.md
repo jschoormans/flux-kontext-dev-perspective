@@ -64,5 +64,66 @@ npm start
 - FAL API for AI image generation
 - Custom LoRA model for perspective-aware generation
 
+## Deployment
+
+### Option 1: Vercel (Recommended)
+
+1. **Install Vercel CLI:**
+```bash
+npm i -g vercel
+```
+
+2. **Deploy:**
+```bash
+vercel
+```
+
+3. **Set environment variables in Vercel dashboard:**
+   - `FAL_API_KEY` = your FAL API key
+
+### Option 2: Railway
+
+1. **Connect your GitHub repository to Railway**
+2. **Set environment variables:**
+   - `FAL_API_KEY` = your FAL API key
+3. **Deploy automatically on push**
+
+### Option 3: Render
+
+1. **Create a new Web Service on Render**
+2. **Connect your GitHub repository**
+3. **Set environment variables:**
+   - `FAL_API_KEY` = your FAL API key
+4. **Deploy**
+
+### Option 4: Heroku
+
+1. **Install Heroku CLI**
+2. **Create Heroku app:**
+```bash
+heroku create your-app-name
+```
+
+3. **Set environment variables:**
+```bash
+heroku config:set FAL_API_KEY=your_fal_key_here
+```
+
+4. **Deploy:**
+```bash
+git push heroku main
+```
+
+### Environment Variables
+
+Make sure to set the following environment variable in your deployment platform:
+- `FAL_API_KEY` - Your FAL API key for image generation
+
+### Production Notes
+
+- The app uses port 3000 by default, but most platforms will set the `PORT` environment variable
+- Make sure your FAL API key has sufficient credits for image generation
+- The app handles CORS for cross-origin requests
+
 
 
