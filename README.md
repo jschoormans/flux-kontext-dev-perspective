@@ -1,5 +1,8 @@
 # Kontext Hack - Perspective Grid Generator with AI
 
+![Screenshot of the Perspective Grid Generator web app](media/kontext-perspective-grid-demo.png)
+
+
 A web application that generates perspective grids and uses them to create AI-generated images with proper perspective.
 
 ## Lora 
