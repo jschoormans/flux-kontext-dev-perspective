@@ -253,6 +253,7 @@
 
         <div class="flex justify-center gap-4 mt-8" id="controls">
             <button class="btn btn-neutral text-white" id="downloadBtn">📥 Download Control Image</button>
+            <button class="btn btn-primary text-white bg-green-600 hover:bg-green-700 border-green-600" id="downloadResultBtn" disabled>📥 Download Result</button>
             <button class="btn btn-outline btn-neutral" id="clearBtn">🗑️ Clear Grid</button>
         </div>
     </div>
@@ -270,6 +271,7 @@
                 this.canvasContainer = document.getElementById('canvasContainer');
                 this.controls = document.getElementById('controls');
                 this.downloadBtn = document.getElementById('downloadBtn');
+                this.downloadResultBtn = document.getElementById('downloadResultBtn');
                 this.clearBtn = document.getElementById('clearBtn');
                 
                 // Canvas size controls
@@ -310,6 +312,7 @@
 
                 // Control buttons
                 this.downloadBtn.addEventListener('click', this.downloadImage.bind(this));
+                this.downloadResultBtn.addEventListener('click', this.downloadResult.bind(this));
                 this.clearBtn.addEventListener('click', this.clearGrid.bind(this));
             }
 
@@ -653,6 +656,7 @@
                 this.generatedImage.classList.remove('hidden');
                 this.placeholderContainer.classList.add('hidden');
                 this.spinnerContainer.classList.add('hidden');
+                this.downloadResultBtn.disabled = false;
             }
 
             showSpinner() {
@@ -718,6 +722,60 @@
                 link.click();
             }
 
+            downloadResult() {
+                if (!this.generatedImage.src || this.generatedImage.classList.contains('hidden')) {
+                    this.showStatus('No generated image to download', 'error');
+                    return;
+                }
+
+                // Create a canvas for the side-by-side result
+                const resultCanvas = document.createElement('canvas');
+                const resultCtx = resultCanvas.getContext('2d');
+                
+                // Set canvas size to accommodate both images side by side
+                const padding = 20;
+                const imageWidth = Math.max(this.canvas.width, 400);
+                const imageHeight = Math.max(this.canvas.height, 400);
+                resultCanvas.width = (imageWidth * 2) + (padding * 3);
+                resultCanvas.height = imageHeight + (padding * 2);
+                
+                // Fill with white background
+                resultCtx.fillStyle = '#ffffff';
+                resultCtx.fillRect(0, 0, resultCanvas.width, resultCanvas.height);
+                
+                // Draw the perspective grid (control image) on the left
+                const controlImageDataUri = this.getControlImageDataUri();
+                const controlImg = new Image();
+                controlImg.onload = () => {
+                    resultCtx.drawImage(controlImg, padding, padding, imageWidth, imageHeight);
+                    
+                    // Draw the generated image on the right
+                    const generatedImg = new Image();
+                    generatedImg.crossOrigin = 'anonymous';
+                    generatedImg.onload = () => {
+                        resultCtx.drawImage(generatedImg, padding * 2 + imageWidth, padding, imageWidth, imageHeight);
+                        
+                        // Add labels
+                        resultCtx.fillStyle = '#000000';
+                        resultCtx.font = '16px Arial';
+                        resultCtx.textAlign = 'center';
+                        resultCtx.fillText('Control Image', padding + imageWidth/2, padding - 5);
+                        resultCtx.fillText('Generated Image', padding * 2 + imageWidth + imageWidth/2, padding - 5);
+                        
+                        // Download the result
+                        const link = document.createElement('a');
+                        link.download = 'perspective-result.png';
+                        link.href = resultCanvas.toDataURL();
+                        link.click();
+                    };
+                    generatedImg.onerror = () => {
+                        this.showStatus('Error loading generated image for download', 'error');
+                    };
+                    generatedImg.src = this.generatedImage.src;
+                };
+                controlImg.src = controlImageDataUri;
+            }
+
             clearGrid() {
                 this.vanishingPoint = null;
                 this.setupCanvas();
@@ -726,6 +784,7 @@
                 this.generatedImage.classList.add('hidden');
                 this.spinnerContainer.classList.add('hidden');
                 this.placeholderContainer.classList.remove('hidden');
+                this.downloadResultBtn.disabled = true;
             }
         }
 
