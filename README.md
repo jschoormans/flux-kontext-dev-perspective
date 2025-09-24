@@ -9,18 +9,17 @@ A web application that generates perspective grids and uses them to create AI-ge
 The model can be found: https://huggingface.co/jschoormans/flux-kontext-dev-vanishing-point-lora 
 
 ## Training 
+This LoRa was trained on 1063 image pairs and captions. 
 
-
-Data and vanishing point annotations are from the AVA Dataset, and the authors of:
+Data and vanishing point annotations are from the AVA Dataset, and the vanishing point data is courtesy of:
 
 Detecting Dominant Vanishing Points in Natural Scenes with Application to Composition-Sensitive Image Retrieval  
 Zihan Zhou, Farshid Farhat, and James Z. Wang  
 IEEE Transactions on Multimedia, 2017. [https://zihan-z.github.io/projects/vpdetection/]
 
-Data here: https://huggingface.co/datasets/jschoormans/perspective_control/upload/main
+The dataset can be found here: https://huggingface.co/datasets/jschoormans/perspective_control/tree/main
 
 The LoRa was trained using the AI Toolkit.
-
 
 ## Inference
 Trigger word: "vanpoint". Create control images like the ones in the dataset, using the process_vanishing_points.py script or with the interactive web app.
