@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perspective Grid Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #000000;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px;
+            line-height: 1.6;
+        }
+
+        .container {
+            background: #ffffff;
+            border-radius: 32px;
+            box-shadow: 
+                0 32px 64px rgba(0, 0, 0, 0.3),
+                0 16px 32px rgba(0, 0, 0, 0.2);
+            padding: 48px;
+            max-width: 1600px;
+            width: 100%;
+            margin: 24px 0;
+            border: 2px solid #000000;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #000000, transparent);
+        }
+
+        h1 {
+            text-align: center;
+            color: #000000;
+            margin-bottom: 48px;
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+            position: relative;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 2px;
+            background: #000000;
+        }
+
+
+        .canvas-container {
+            position: relative;
+            display: block;
+            margin: 40px 0;
+            text-align: center;
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.2),
+                0 8px 16px rgba(0, 0, 0, 0.1);
+            border: 2px solid #000000;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .canvas-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #000000, transparent);
+        }
+
+        canvas {
+            border: 2px solid #000000;
+            border-radius: 20px;
+            max-width: 100%;
+            height: auto;
+            cursor: crosshair;
+            box-shadow: 
+                0 12px 32px rgba(0, 0, 0, 0.2),
+                0 4px 16px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        canvas:hover {
+            box-shadow: 
+                0 16px 40px rgba(0, 0, 0, 0.3),
+                0 8px 20px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px);
+        }
+
+
+        @media (max-width: 768px) {
+            body {
+                padding: 16px;
+            }
+
+            .container {
+                margin: 8px;
+                padding: 32px 24px;
+                border-radius: 24px;
+            }
+
+            h1 {
+                font-size: clamp(2rem, 8vw, 3rem);
+                margin-bottom: 32px;
+            }
+
+            .canvas-container {
+                padding: 24px;
+                margin: 32px 0;
+            }
+
+            .grid {
+                gap: 24px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 24px 16px;
+            }
+
+            .canvas-container {
+                padding: 20px;
+            }
+        }
+
+        /* Custom spinner styles */
+        .custom-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #000000;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-3xl font-bold text-black text-center mb-8">Flux Kontext Dev Perspective Control</h1>
+        
+        <div class="flex flex-col sm:flex-row gap-4 items-center justify-center mb-8">
+            <div class="flex items-center gap-3">
+                <span class="text-sm font-bold text-black min-w-[50px]">Width</span>
+                <input type="range" class="range range-neutral range-xs w-32" id="widthSlider" min="200" max="1200" value="800">
+                <span class="badge badge-neutral badge-sm text-white" id="widthValue">800px</span>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <span class="text-sm font-bold text-black min-w-[50px]">Height</span>
+                <input type="range" class="range range-neutral range-xs w-32" id="heightSlider" min="200" max="800" value="600">
+                <span class="badge badge-neutral badge-sm text-white" id="heightValue">600px</span>
+            </div>
+        </div>
+
+        <!-- Side-by-side layout for grid and generated image -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+            <!-- Left side: Perspective Grid -->
+            <div class="flex flex-col">
+                <h3 class="text-lg font-bold text-black mb-4 text-center">Perspective Grid</h3>
+                <div class="canvas-container" id="canvasContainer">
+                    <canvas id="canvas"></canvas>
+                </div>
+            </div>
+
+            <!-- Right side: Generated Image -->
+            <div class="flex flex-col">
+                <h3 class="text-lg font-bold text-black mb-4 text-center">Generated Image</h3>
+                <div class="canvas-container" id="generatedImageContainer" style="min-height: 600px;">
+                    <!-- Spinner while loading -->
+                    <div id="spinnerContainer" class="flex flex-col items-center justify-center h-full min-h-[600px] hidden">
+                        <div class="custom-spinner mb-4"></div>
+                        <p class="text-gray-600 text-sm">Generating your image...</p>
+                        <p class="text-gray-500 text-xs mt-2">This may take a few minutes...</p>
+                    </div>
+                    
+                    <!-- Generated image -->
+                    <img id="generatedImage" class="max-w-full h-auto border-2 border-black rounded-2xl hidden" alt="Generated image">
+                    
+                    <!-- Placeholder when no image -->
+                    <div id="placeholderContainer" class="flex flex-col items-center justify-center h-full min-h-[600px] border-2 border-dashed border-gray-300 rounded-2xl">
+                        <div class="text-gray-400 text-center">
+                            <div class="text-6xl mb-4">🎨</div>
+                            <p class="text-lg font-medium">Your generated image will appear here</p>
+                            <p class="text-sm mt-2">Set a vanishing point and enter a prompt to get started</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Prompt Form Section -->
+        <div class="mt-8 p-6 bg-gray-50 rounded-2xl border-2 border-black">
+            <h2 class="text-xl font-bold text-black mb-4 text-center">🎨 Generate Image with AI</h2>
+            <div class="flex flex-col sm:flex-row gap-4 items-center justify-center">
+                <div class="flex-1 max-w-md">
+                    <input 
+                        type="text" 
+                        id="promptInput" 
+                        placeholder="Enter your prompt (e.g., 'vanpoint cityscape')" 
+                        class="input input-bordered w-full bg-white border-black focus:border-black"
+                    >
+                </div>
+                <button 
+                    class="btn btn-primary text-white bg-black hover:bg-gray-800 border-black" 
+                    id="generateBtn"
+                    disabled
+                >
+                    🚀 Generate Image
+                </button>
+            </div>
+            <div id="statusMessage" class="mt-4 text-center text-sm"></div>
+        </div>
+
+        <div class="flex justify-center gap-4 mt-8" id="controls">
+            <button class="btn btn-neutral text-white" id="downloadBtn">📥 Download Control Image</button>
+            <button class="btn btn-outline btn-neutral" id="clearBtn">🗑️ Clear Grid</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-12 text-center text-gray-600 text-sm">
+        <p>&copy; 2025 Jasper Schoormans</p>
+    </footer>
+
+    <script>
+        class PerspectiveGridGenerator {
+            constructor() {
+                this.canvas = document.getElementById('canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.canvasContainer = document.getElementById('canvasContainer');
+                this.controls = document.getElementById('controls');
+                this.downloadBtn = document.getElementById('downloadBtn');
+                this.clearBtn = document.getElementById('clearBtn');
+                
+                // Canvas size controls
+                this.widthSlider = document.getElementById('widthSlider');
+                this.heightSlider = document.getElementById('heightSlider');
+                this.widthValue = document.getElementById('widthValue');
+                this.heightValue = document.getElementById('heightValue');
+
+                // Prompt form elements
+                this.promptInput = document.getElementById('promptInput');
+                this.generateBtn = document.getElementById('generateBtn');
+                this.statusMessage = document.getElementById('statusMessage');
+                this.generatedImageContainer = document.getElementById('generatedImageContainer');
+                this.generatedImage = document.getElementById('generatedImage');
+                this.spinnerContainer = document.getElementById('spinnerContainer');
+                this.placeholderContainer = document.getElementById('placeholderContainer');
+
+                this.vanishingPoint = null;
+                this.gridLines = [];
+                this.canvasWidth = 800;
+                this.canvasHeight = 600;
+
+                this.initializeEventListeners();
+                this.initializeCanvas();
+            }
+
+            initializeEventListeners() {
+                // Canvas size sliders
+                this.widthSlider.addEventListener('input', this.handleWidthChange.bind(this));
+                this.heightSlider.addEventListener('input', this.handleHeightChange.bind(this));
+
+                // Canvas click for vanishing point
+                this.canvas.addEventListener('click', this.handleCanvasClick.bind(this));
+
+                // Prompt form events
+                this.promptInput.addEventListener('input', this.handlePromptInput.bind(this));
+                this.generateBtn.addEventListener('click', this.generateImage.bind(this));
+
+                // Control buttons
+                this.downloadBtn.addEventListener('click', this.downloadImage.bind(this));
+                this.clearBtn.addEventListener('click', this.clearGrid.bind(this));
+            }
+
+            initializeCanvas() {
+                this.setupCanvas();
+            }
+
+            handleWidthChange(e) {
+                this.canvasWidth = parseInt(e.target.value);
+                this.widthValue.textContent = `${this.canvasWidth}px`;
+                this.setupCanvas();
+            }
+
+            handleHeightChange(e) {
+                this.canvasHeight = parseInt(e.target.value);
+                this.heightValue.textContent = `${this.canvasHeight}px`;
+                this.setupCanvas();
+            }
+
+            setupCanvas() {
+                this.canvas.width = this.canvasWidth;
+                this.canvas.height = this.canvasHeight;
+                
+                // Fill with white background
+                this.ctx.fillStyle = '#ffffff';
+                this.ctx.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
+                
+                // Redraw grid if vanishing point exists
+                if (this.vanishingPoint) {
+                    this.generatePerspectiveGrid();
+                }
+            }
+
+            handleCanvasClick(e) {
+                const rect = this.canvas.getBoundingClientRect();
+                
+                // Calculate the scale factor between display size and actual canvas size
+                const scaleX = this.canvas.width / rect.width;
+                const scaleY = this.canvas.height / rect.height;
+                
+                // Get the click position relative to the canvas
+                const x = (e.clientX - rect.left) * scaleX;
+                const y = (e.clientY - rect.top) * scaleY;
+
+                console.log('Click coordinates:', { x, y, scaleX, scaleY, canvasWidth: this.canvas.width, canvasHeight: this.canvas.height });
+
+                this.vanishingPoint = { x, y };
+                this.generatePerspectiveGrid();
+                this.handlePromptInput(); // Update button state
+            }
+
+            generatePerspectiveGrid() {
+                if (!this.vanishingPoint) return;
+
+                // Clear and redraw white background
+                this.ctx.fillStyle = '#ffffff';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+                // Draw horizontal grid lines (UI only)
+                this.ctx.strokeStyle = '#000000';
+                this.ctx.lineWidth = 1;
+                this.ctx.beginPath();
+                
+                const lineSpacing = 50; // Equidistant horizontal lines every 50px
+                for (let y = lineSpacing; y < this.canvas.height; y += lineSpacing) {
+                    this.ctx.moveTo(0, y);
+                    this.ctx.lineTo(this.canvas.width, y);
+                }
+                this.ctx.stroke();
+
+                // Draw perspective grid lines every 20 degrees with black lines
+                this.ctx.strokeStyle = '#000000';
+                this.ctx.lineWidth = 2;
+                this.ctx.beginPath();
+
+                for (let angle = 0; angle < 360; angle += 20) {
+                    const angleRad = (angle * Math.PI) / 180;
+                    this.drawGridLine(angleRad);
+                }
+
+                this.ctx.stroke();
+
+                // Draw vanishing point as black dot
+                this.ctx.fillStyle = '#000000';
+                this.ctx.beginPath();
+                this.ctx.arc(this.vanishingPoint.x, this.vanishingPoint.y, 8, 0, 2 * Math.PI);
+                this.ctx.fill();
+
+                // Draw black outline around vanishing point
+                this.ctx.strokeStyle = '#000000';
+                this.ctx.lineWidth = 2;
+                this.ctx.beginPath();
+                this.ctx.arc(this.vanishingPoint.x, this.vanishingPoint.y, 12, 0, 2 * Math.PI);
+                this.ctx.stroke();
+            }
+
+            drawGridLine(angleRad) {
+                this.drawGridLineOnCanvas(this.ctx, angleRad, this.canvas.width, this.canvas.height);
+            }
+
+            drawGridLineOnCanvas(ctx, angleRad, canvasWidth, canvasHeight) {
+                const cos = Math.cos(angleRad);
+                const sin = Math.sin(angleRad);
+                const vp = this.vanishingPoint;
+
+                // Calculate intersections with canvas boundaries
+                const intersections = [];
+
+                // Top edge (y = 0)
+                if (sin !== 0) {
+                    const t = -vp.y / sin;
+                    if (t > 0) {
+                        const x = vp.x + t * cos;
+                        if (x >= 0 && x <= canvasWidth) {
+                            intersections.push({ x, y: 0 });
+                        }
+                    }
+                }
+
+                // Bottom edge (y = canvasHeight)
+                if (sin !== 0) {
+                    const t = (canvasHeight - vp.y) / sin;
+                    if (t > 0) {
+                        const x = vp.x + t * cos;
+                        if (x >= 0 && x <= canvasWidth) {
+                            intersections.push({ x, y: canvasHeight });
+                        }
+                    }
+                }
+
+                // Left edge (x = 0)
+                if (cos !== 0) {
+                    const t = -vp.x / cos;
+                    if (t > 0) {
+                        const y = vp.y + t * sin;
+                        if (y >= 0 && y <= canvasHeight) {
+                            intersections.push({ x: 0, y });
+                        }
+                    }
+                }
+
+                // Right edge (x = canvasWidth)
+                if (cos !== 0) {
+                    const t = (canvasWidth - vp.x) / cos;
+                    if (t > 0) {
+                        const y = vp.y + t * sin;
+                        if (y >= 0 && y <= canvasHeight) {
+                            intersections.push({ x: canvasWidth, y });
+                        }
+                    }
+                }
+
+                // Draw line from vanishing point to the closest intersection
+                if (intersections.length > 0) {
+                    const closest = intersections.reduce((min, current) => {
+                        const minDist = Math.sqrt((min.x - vp.x) ** 2 + (min.y - vp.y) ** 2);
+                        const currentDist = Math.sqrt((current.x - vp.x) ** 2 + (current.y - vp.y) ** 2);
+                        return currentDist < minDist ? current : min;
+                    });
+
+                    ctx.moveTo(vp.x, vp.y);
+                    ctx.lineTo(closest.x, closest.y);
+                }
+            }
+
+            handlePromptInput() {
+                const hasPrompt = this.promptInput.value.trim().length > 0;
+                const hasVanishingPoint = this.vanishingPoint !== null;
+                this.generateBtn.disabled = !(hasPrompt && hasVanishingPoint);
+            }
+
+            async generateImage() {
+                if (!this.vanishingPoint) {
+                    this.showStatus('Please click on the canvas to set a vanishing point first.', 'error');
+                    return;
+                }
+
+                const prompt = this.promptInput.value.trim();
+                if (!prompt) {
+                    this.showStatus('Please enter a prompt.', 'error');
+                    return;
+                }
+
+                this.generateBtn.disabled = true;
+                this.showStatus('Generating image...', 'info');
+                this.showSpinner();
+
+                try {
+                    // Get the canvas as a data URI (base64) - use the black/red version for control
+                    const imageDataUri = this.getControlImageDataUri();
+                    
+                    // Make the API call
+                    const response = await this.callFalAPI(imageDataUri, prompt);
+                    
+                    if (response.request_id) {
+                        this.showStatus(`Request submitted! ID: ${response.request_id}. Polling for results...`, 'info');
+                        await this.pollForResult(response.request_id);
+                    } else {
+                        this.showStatus('Error: No request ID received', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error generating image:', error);
+                    this.showStatus(`Error: ${error.message}`, 'error');
+                } finally {
+                    this.generateBtn.disabled = false;
+                    this.hideSpinner();
+                }
+            }
+
+            getControlImageDataUri() {
+                // Create a temporary canvas for the control image with black bg and red lines
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+                tempCanvas.width = this.canvas.width;
+                tempCanvas.height = this.canvas.height;
+                
+                // Fill with black background (like original Python code)
+                tempCtx.fillStyle = '#000000';
+                tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+                
+                if (this.vanishingPoint) {
+                    // Draw ONLY perspective lines every 20 degrees with red lines (like original)
+                    tempCtx.strokeStyle = '#ff0000';
+                    tempCtx.lineWidth = 2;
+                    tempCtx.beginPath();
+
+                    for (let angle = 0; angle < 360; angle += 20) {
+                        const angleRad = (angle * Math.PI) / 180;
+                        this.drawGridLineOnCanvas(tempCtx, angleRad, tempCanvas.width, tempCanvas.height);
+                    }
+
+                    tempCtx.stroke();
+
+                    // Draw vanishing point as red dot (like original)
+                    tempCtx.fillStyle = '#ff0000';
+                    tempCtx.beginPath();
+                    tempCtx.arc(this.vanishingPoint.x, this.vanishingPoint.y, 8, 0, 2 * Math.PI);
+                    tempCtx.fill();
+
+                    // Draw red outline around vanishing point (like original)
+                    tempCtx.strokeStyle = '#ff0000';
+                    tempCtx.lineWidth = 2;
+                    tempCtx.beginPath();
+                    tempCtx.arc(this.vanishingPoint.x, this.vanishingPoint.y, 12, 0, 2 * Math.PI);
+                    tempCtx.stroke();
+                }
+                
+                return tempCanvas.toDataURL('image/png');
+            }
+
+            async callFalAPI(imageDataUri, prompt) {
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        image_url: imageDataUri,
+                        prompt: prompt,
+                        num_inference_steps: 30,
+                        guidance_scale: 1.5,
+                        num_images: 1,
+                        enable_safety_checker: true,
+                        output_format: 'png',
+                        acceleration: 'none',
+                        resolution_mode: 'match_input',
+                        loras: [
+                            {
+                                path: 'https://huggingface.co/jschoormans/flux-kontext-dev-vanishing-point-lora/resolve/main/vanpoint.safetensors',
+                                scale: 1.3
+                            }
+                        ]
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                return await response.json();
+            }
+
+            async pollForResult(requestId) {
+                const maxAttempts = 60; // 5 minutes max
+                let attempts = 0;
+
+                const poll = async () => {
+                    try {
+                        const response = await fetch(`/api/status/${requestId}`);
+                        const data = await response.json();
+
+                        console.log('Status response:', data); // Debug log
+
+                        if (data.status === 'COMPLETED') {
+                            this.showStatus('Image generated successfully!', 'success');
+                            // Get the actual result
+                            await this.getResult(requestId);
+                            return;
+                        } else if (data.status === 'FAILED') {
+                            this.showStatus('Image generation failed.', 'error');
+                            return;
+                        } else if (attempts >= maxAttempts) {
+                            this.showStatus('Generation timed out. Please try again.', 'error');
+                            return;
+                        }
+
+                        attempts++;
+                        this.showStatus(`Generating... (${attempts}/${maxAttempts})`, 'info');
+                        setTimeout(poll, 5000); // Poll every 5 seconds
+                    } catch (error) {
+                        console.error('Error polling for result:', error);
+                        this.showStatus(`Error checking status: ${error.message}`, 'error');
+                    }
+                };
+
+                poll();
+            }
+
+            async getResult(requestId) {
+                try {
+                    const response = await fetch(`/api/result/${requestId}`);
+                    const data = await response.json();
+                    
+                    console.log('Result response:', data); // Debug log
+                    
+                    if (data.images && data.images.length > 0) {
+                        this.displayGeneratedImage(data.images[0].url);
+                    } else if (data.image_url) {
+                        this.displayGeneratedImage(data.image_url);
+                    } else {
+                        this.showStatus('No image found in result', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error getting result:', error);
+                    this.showStatus(`Error getting result: ${error.message}`, 'error');
+                }
+            }
+
+            displayGeneratedImage(imageUrl) {
+                this.generatedImage.src = imageUrl;
+                this.generatedImage.classList.remove('hidden');
+                this.placeholderContainer.classList.add('hidden');
+                this.spinnerContainer.classList.add('hidden');
+            }
+
+            showSpinner() {
+                this.placeholderContainer.classList.add('hidden');
+                this.generatedImage.classList.add('hidden');
+                this.spinnerContainer.classList.remove('hidden');
+            }
+
+            hideSpinner() {
+                this.spinnerContainer.classList.add('hidden');
+            }
+
+            showStatus(message, type = 'info') {
+                this.statusMessage.textContent = message;
+                this.statusMessage.className = `mt-4 text-center text-sm ${
+                    type === 'error' ? 'text-red-600' : 
+                    type === 'success' ? 'text-green-600' : 
+                    'text-gray-600'
+                }`;
+            }
+
+            downloadImage() {
+                // Create a temporary canvas for download with original colors (black bg, red lines)
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+                tempCanvas.width = this.canvas.width;
+                tempCanvas.height = this.canvas.height;
+                
+                // Fill with black background (like original Python code)
+                tempCtx.fillStyle = '#000000';
+                tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+                
+                if (this.vanishingPoint) {
+                    // Draw grid lines every 20 degrees with red lines (like original)
+                    tempCtx.strokeStyle = '#ff0000';
+                    tempCtx.lineWidth = 2;
+                    tempCtx.beginPath();
+
+                    for (let angle = 0; angle < 360; angle += 20) {
+                        const angleRad = (angle * Math.PI) / 180;
+                        this.drawGridLineOnCanvas(tempCtx, angleRad, tempCanvas.width, tempCanvas.height);
+                    }
+
+                    tempCtx.stroke();
+
+                    // Draw vanishing point as red dot (like original)
+                    tempCtx.fillStyle = '#ff0000';
+                    tempCtx.beginPath();
+                    tempCtx.arc(this.vanishingPoint.x, this.vanishingPoint.y, 8, 0, 2 * Math.PI);
+                    tempCtx.fill();
+
+                    // Draw red outline around vanishing point (like original)
+                    tempCtx.strokeStyle = '#ff0000';
+                    tempCtx.lineWidth = 2;
+                    tempCtx.beginPath();
+                    tempCtx.arc(this.vanishingPoint.x, this.vanishingPoint.y, 12, 0, 2 * Math.PI);
+                    tempCtx.stroke();
+                }
+                
+                const link = document.createElement('a');
+                link.download = 'perspective-grid.png';
+                link.href = tempCanvas.toDataURL();
+                link.click();
+            }
+
+            clearGrid() {
+                this.vanishingPoint = null;
+                this.setupCanvas();
+                this.handlePromptInput(); // Update button state
+                // Reset image display
+                this.generatedImage.classList.add('hidden');
+                this.spinnerContainer.classList.add('hidden');
+                this.placeholderContainer.classList.remove('hidden');
+            }
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', () => {
+            new PerspectiveGridGenerator();
+        });
+    </script>
+</body>
+</html>
