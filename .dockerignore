@@ -1,0 +1,42 @@
+# Exclude large directories that aren't needed for deployment
+lora/
+processed_images/
+train/
+train_end/
+train_control/
+train_captions/
+vp-labels/
+media/
+app/
+__pycache__/
+
+# Exclude Python files that aren't needed for the web app
+*.py
+*.pyc
+*.pyo
+*.pyd
+
+# Exclude development files
+.DS_Store
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Exclude archive files
+*.zip
+*.tar.gz
+*.rar
+
+# Exclude other unnecessary files
+Procfile
+deploy.sh
+arch.zip
+
+# Exclude git and node_modules (will be installed fresh)
+.git
+.gitignore
+node_modules/
+
+# Exclude environment files (will be set in CapRover)
+.env
