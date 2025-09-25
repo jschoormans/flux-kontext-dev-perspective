@@ -1,0 +1,35 @@
+# Exclude large directories that aren't needed for deployment
+lora/
+processed_images/
+train/
+train_end/
+train_control/
+train_captions/
+vp-labels/
+media/
+app/
+__pycache__/
+
+# Exclude Python files that aren't needed for the web app
+*.py
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+
+# Exclude development files
+.DS_Store
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Exclude archive files
+*.zip
+*.tar.gz
+*.rar
+
+# Exclude other unnecessary files
+Procfile
+deploy.sh
+arch.zip
