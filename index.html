@@ -231,12 +231,21 @@
         <!-- Prompt Form Section -->
         <div class="mt-8 p-6 bg-gray-50 rounded-2xl border-2 border-black">
             <h2 class="text-xl font-bold text-black mb-4 text-center">🎨 Generate Image with AI</h2>
+            
+            <!-- Instruction about trigger keyword -->
+            <div class="mb-3 p-2 bg-gray-100 border border-gray-300 rounded-lg">
+                <p class="text-xs text-gray-600 text-center">
+                    💡 <strong>Tip:</strong> Include "vanpoint" in your prompt to activate perspective control. 
+                    Example: "vanpoint cityscape with tall buildings"
+                </p>
+            </div>
+            
             <div class="flex flex-col sm:flex-row gap-4 items-center justify-center">
                 <div class="flex-1 max-w-md">
                     <input 
                         type="text" 
                         id="promptInput" 
-                        placeholder="Enter your prompt (e.g., 'vanpoint cityscape')" 
+                        placeholder="Enter your prompt with 'vanpoint' (e.g., 'vanpoint cityscape')" 
                         class="input input-bordered w-full bg-white border-black focus:border-black"
                     >
                 </div>
